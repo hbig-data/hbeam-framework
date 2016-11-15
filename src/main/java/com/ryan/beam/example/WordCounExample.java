@@ -72,6 +72,8 @@ public class WordCounExample {
 
         wordCounExample.run();
 
+        LOG.info("test");
+
     }
 
 
