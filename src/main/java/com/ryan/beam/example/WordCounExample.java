@@ -1,9 +1,13 @@
 package com.ryan.beam.example;
 
+import org.apache.beam.runners.spark.SparkContextOptions;
+import org.apache.beam.runners.spark.SparkPipelineOptions;
 import org.apache.beam.sdk.Pipeline;
+import org.apache.beam.sdk.coders.Coder;
 import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
+import org.apache.beam.sdk.runners.PipelineRunner;
 import org.apache.beam.sdk.transforms.*;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
@@ -27,6 +31,9 @@ public class WordCounExample implements Serializable {
         PipelineOptions options = PipelineOptionsFactory.create();
         options.setJobName("wordcount");
 
+        PipelineOptions.DirectRunner directRunner = new SparkContextOptions.DirectRunner();
+
+
         pipeline = Pipeline.create(options);
     }
 
@@ -39,7 +46,8 @@ public class WordCounExample implements Serializable {
         PCollection<String> extractWords = collection.apply("ExtractWords", ParDo.of(new DoFn<String, String>() {
             @ProcessElement
             public void processElement(ProcessContext c) {
-                for (String word : c.element().split("[^a-zA-Z']+")) {
+                String[] split = c.element().split("##");
+                for (String word : split) {
                     if (!word.isEmpty()) {
                         c.output(word);
                     }
@@ -50,21 +58,24 @@ public class WordCounExample implements Serializable {
 
         PCollection<KV<String, Long>> pCollection = extractWords.apply(Count.<String>perElement());
 
+
         PCollection<String> formatResults = pCollection.apply("FormatResults", MapElements.via(new SimpleFunction<KV<String, Long>, String>() {
             @Override
             public String apply(KV<String, Long> input) {
+                LOG.info("统计结果为: {} -- {}", input.getKey(), input.getValue());
+
                 return input.getKey() + ": " + input.getValue();
             }
         }));
 
-        formatResults.apply(TextIO.Write.to("hdfs://test/usr"));
+        formatResults.apply(TextIO.Write.to("/test/out/d"));
     }
 
     /**
      * 开始运行
      */
     public void run(){
-        pipeline.run();
+        pipeline.run().waitUntilFinish();
     }
 
 
@@ -73,10 +84,5 @@ public class WordCounExample implements Serializable {
         wordCounExample.transform();
 
         wordCounExample.run();
-
-        LOG.info("test");
-
     }
-
-
 }
