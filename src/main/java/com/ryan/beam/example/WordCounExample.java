@@ -10,15 +10,17 @@ import org.apache.beam.sdk.values.PCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
+
 /**
  * @author Rayn
  * @email liuwei412552703@163.com
  * Created by Rayn on 2016/11/14 10:07.
  */
-public class WordCounExample {
+public class WordCounExample implements Serializable {
     private static final Logger LOG = LoggerFactory.getLogger(WordCounExample.class);
 
-    private Pipeline pipeline = null;
+    private transient Pipeline pipeline = null;
 
 
     public WordCounExample() {
@@ -32,7 +34,7 @@ public class WordCounExample {
      *
      */
     public void transform() {
-        PCollection<String> collection = pipeline.apply(TextIO.Read.from("file://e:/test/document"));
+        PCollection<String> collection = pipeline.apply(TextIO.Read.from("file:///e:/test/pending/JF_FTP_RAWLOGUSERBV_003_0001.txt"));
 
         PCollection<String> extractWords = collection.apply("ExtractWords", ParDo.of(new DoFn<String, String>() {
             @ProcessElement
@@ -55,7 +57,7 @@ public class WordCounExample {
             }
         }));
 
-        formatResults.apply(TextIO.Write.to("file://e:/output"));
+        formatResults.apply(TextIO.Write.to("hdfs://test/usr"));
     }
 
     /**

@@ -171,9 +171,10 @@
 
         <mysql.version>5.1.38</mysql.version>
 
-        <beam.version>0.3.0-incubating</beam.version>
+        <beam.version>0.4.0</beam.version>
 
-
+        <spark.version>1.6.3</spark.version>
+        <spark.soft.version>2.11</spark.soft.version>
 
         <project.build.outputEncoding>UTF-8</project.build.outputEncoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -220,21 +221,62 @@
             <version>${beam.version}</version>
         </dependency>
 
+        <!-- ========================================= Spark Package Jar =================================== -->
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-runners-spark</artifactId>
             <version>${beam.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-core_${spark.soft.version}</artifactId>
+            <version>${spark.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-streaming_${spark.soft.version}</artifactId>
+            <version>${spark.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-streaming-kafka_${spark.soft.version}</artifactId>
+            <version>${spark.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-network-common_${spark.soft.version}</artifactId>
+            <version>${spark.version}</version>
+        </dependency>
 
+        <!-- ========================================= kafka Package Jar =================================== -->
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-sdks-java-io-kafka</artifactId>
             <version>${beam.version}</version>
         </dependency>
 
+
+
+
+
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-sdks-java-io-mongodb</artifactId>
+            <version>${beam.version}</version>
+        </dependency>
+
+
+
+        <dependency>
+            <groupId>org.apache.beam</groupId>
+            <artifactId>beam-sdks-java-io-hdfs</artifactId>
+            <version>${beam.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.apache.beam</groupId>
+            <artifactId>beam-sdks-java-io-jms</artifactId>
             <version>${beam.version}</version>
         </dependency>
 
@@ -250,7 +292,20 @@
     <build>
         <finalName>${project.artifactId}-${project.version}</finalName>
         <plugins>
-
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.3</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                    <encoding>UTF-8</encoding>
+                    <compilerArguments>
+                        <verbose/>
+                        <bootclasspath>${java.home}\lib\rt.jar;${java.home}\lib\jce.jar</bootclasspath>
+                    </compilerArguments>
+                </configuration>
+            </plugin>
 
 
         </plugins>

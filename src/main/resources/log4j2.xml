@@ -22,7 +22,7 @@
     </Appenders>
     <Loggers>
         <!--隐藏Hibernate的参数问号警告-->
-        <Logger name="org.hibernate.hql.internal.ast.HqlSqlWalker" level="ERROR" additivity="false">
+        <Logger name="org.apache" level="info" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
 
