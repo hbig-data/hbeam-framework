@@ -1,11 +1,19 @@
 package com.ryan.beam.spark;
 
+import org.apache.beam.runners.spark.SparkContextOptions;
+import org.apache.beam.runners.spark.SparkPipelineOptions;
 import org.apache.beam.runners.spark.SparkRunner;
+import org.apache.beam.runners.spark.translation.SparkContextFactory;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
+import org.apache.beam.sdk.transforms.*;
+import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
+import org.apache.beam.sdk.values.PDone;
+import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.api.java.StorageLevels;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,19 +30,48 @@ public class SparkTextFile implements Serializable {
 
 
     public static void main(String[] args) {
-        PipelineOptions options = PipelineOptionsFactory.create();
+
+        long start = System.currentTimeMillis();
+
+        SparkPipelineOptions sparkPipelineOptions = PipelineOptionsFactory.as(SparkPipelineOptions.class);
+        sparkPipelineOptions.setSparkMaster("local[4]");
+        sparkPipelineOptions.setJobName("sparkWordCount");
+        sparkPipelineOptions.setAppName("sparkWordCount");
+        sparkPipelineOptions.setStorageLevel(StorageLevels.MEMORY_AND_DISK.toString());
+        sparkPipelineOptions.setEnableSparkMetricSinks(true);
+
+        Pipeline pipeline = Pipeline.create(sparkPipelineOptions);
+
+        PCollection<String> collection = pipeline.apply(TextIO.Read.from("file:///e:/test/pending/JF_FTP_RAWLOGUSERBV_003_0001.txt"));
+
+        PCollection<KV<String, Long>> pCollection = collection.apply("ExtractWords", ParDo.of(new DoFn<String, String>() {
+
+            @ProcessElement
+            public void processElement(ProcessContext c) {
+                String[] split = c.element().split("##");
+                for (String word : split) {
+                    if (!word.isEmpty()) {
+                        c.output(word);
+                    }
+                }
+            }
+        })).apply(Count.<String>perElement());
+
+//        PCollection<String> formatResults = pCollection.apply("FormatResults", MapElements.via(new SimpleFunction<KV<String, Long>, String>() {
+//            @Override
+//            public String apply(KV<String, Long> input) {
+//                // LOG.info("统计结果为: {} -- {}", input.getKey(), input.getValue());
+//
+//                return input.getKey() + ": " + input.getValue();
+//            }
+//        }));
+
+        //.apply(TextIO.Write.to("/test/out/d"));
+
+        pipeline.run().waitUntilFinish();
+
+        System.err.println("耗时：" + (System.currentTimeMillis() - start));
 
 
-        SparkRunner sparkRunner = SparkRunner.fromOptions(options);
-
-        Pipeline p = Pipeline.create(options);
-
-        PCollection<String> pCollection = p.apply(TextIO.Read.from("file:///e:/test/pending/JF_FTP_RAWLOGUSERBV_003_0001.txt"));
-
-
-
-
-
-        sparkRunner.run(p).waitUntilFinish();
     }
 }
