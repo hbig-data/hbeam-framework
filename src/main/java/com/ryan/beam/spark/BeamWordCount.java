@@ -1,18 +1,12 @@
 package com.ryan.beam.spark;
 
-import org.apache.beam.runners.spark.SparkContextOptions;
 import org.apache.beam.runners.spark.SparkPipelineOptions;
-import org.apache.beam.runners.spark.SparkRunner;
-import org.apache.beam.runners.spark.translation.SparkContextFactory;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.TextIO;
-import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.*;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
-import org.apache.beam.sdk.values.PDone;
-import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.StorageLevels;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,9 +18,9 @@ import java.io.Serializable;
  * @Vendor liuwei412552703@163.com
  * Created by Rayn on 2017/1/12 17:04.
  */
-public class SparkTextFile implements Serializable {
+public class BeamWordCount implements Serializable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SparkTextFile.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BeamWordCount.class);
 
 
     public static void main(String[] args) {

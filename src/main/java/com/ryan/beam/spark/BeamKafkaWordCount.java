@@ -1,7 +1,9 @@
 package com.ryan.beam.spark;
 
+import kafka.serializer.StringDecoder;
 import org.apache.beam.runners.direct.repackaged.com.google.common.collect.ImmutableList;
 import org.apache.beam.runners.spark.SparkPipelineOptions;
+import org.apache.beam.runners.spark.translation.streaming.SparkRunnerStreamingContextFactory;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.BigEndianLongCoder;
 import org.apache.beam.sdk.coders.StringUtf8Coder;
@@ -12,7 +14,15 @@ import org.apache.beam.sdk.transforms.SerializableFunction;
 import org.apache.beam.sdk.transforms.Values;
 import org.apache.beam.sdk.values.KV;
 import org.apache.spark.api.java.StorageLevels;
+import org.apache.spark.streaming.api.java.JavaPairInputDStream;
+import org.apache.spark.streaming.api.java.JavaStreamingContext;
+import org.apache.spark.streaming.kafka.KafkaUtils;
 import org.joda.time.Instant;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * <pre>
@@ -22,7 +32,7 @@ import org.joda.time.Instant;
  * Version      V1.0
  * Discription:
  */
-public class BeamKafkaWC {
+public class BeamKafkaWordCount {
 
 
     public static void main(String[] args) {
@@ -38,11 +48,12 @@ public class BeamKafkaWC {
 
         Pipeline pipeline = Pipeline.create(sparkPipelineOptions);
 
+
         /**
+         * Beam Spark Kafka 数据
          * 接受Kafka 数据
          *
          */
-
         ImmutableMap<String, Object> immutableMap = ImmutableMap.<String, Object>of("receive.buffer.bytes", 1024 * 1024);
 
         pipeline.apply(KafkaIO.read().withBootstrapServers("192.168.1.102:9092,192.168.1.102:9092")
