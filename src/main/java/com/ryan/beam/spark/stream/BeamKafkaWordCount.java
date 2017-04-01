@@ -1,9 +1,7 @@
-package com.ryan.beam.spark;
+package com.ryan.beam.spark.stream;
 
-import kafka.serializer.StringDecoder;
 import org.apache.beam.runners.direct.repackaged.com.google.common.collect.ImmutableList;
 import org.apache.beam.runners.spark.SparkPipelineOptions;
-import org.apache.beam.runners.spark.translation.streaming.SparkRunnerStreamingContextFactory;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.BigEndianLongCoder;
 import org.apache.beam.sdk.coders.StringUtf8Coder;
@@ -14,15 +12,7 @@ import org.apache.beam.sdk.transforms.SerializableFunction;
 import org.apache.beam.sdk.transforms.Values;
 import org.apache.beam.sdk.values.KV;
 import org.apache.spark.api.java.StorageLevels;
-import org.apache.spark.streaming.api.java.JavaPairInputDStream;
-import org.apache.spark.streaming.api.java.JavaStreamingContext;
-import org.apache.spark.streaming.kafka.KafkaUtils;
 import org.joda.time.Instant;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * <pre>
